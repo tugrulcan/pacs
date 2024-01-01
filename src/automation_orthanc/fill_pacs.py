@@ -13,15 +13,15 @@ def run(pw: Playwright) -> None:
     context = browser.new_context(
         http_credentials={
             "username": config.ORTHANC_USERNAME,
-            "password": config.ORTHANC_PASSWORD
+            "password": config.ORTHANC_PASSWORD,
         },
     )
 
-    context.tracing.start(screenshots=True, snapshots=True, sources=True)
-
     try:
         page = context.new_page()
-        page.goto(f"http://{config.PACS_PROVIDER_HOST}:{config.PACS_PROVIDER_PORT}/app/explorer.html")
+        page.goto(
+            f"http://{config.PACS_PROVIDER_HOST}:{config.PACS_PROVIDER_PORT}/app/explorer.html"
+        )
 
         page.get_by_role("link", name="Upload").click()
         project_root_folder_path = Path(__file__).parent.parent.parent
@@ -71,22 +71,31 @@ def run(pw: Playwright) -> None:
         page.get_by_role("link", name="Tech_Challenge").click()
         print("Sent to DICOM modality")
     finally:
-        context.tracing.stop(path="./trace.zip")
         browser.close()
 
 
 def check_connectivity():
-    print("Checking connectivity, ", {config.PACS_PROVIDER_HOST, config.PACS_PROVIDER_PORT})
+    print(
+        "Checking connectivity, ",
+        {config.PACS_PROVIDER_HOST, config.PACS_PROVIDER_PORT},
+    )
 
     # Check if pacs provider is running
     import socket
+
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    result = sock.connect_ex((config.PACS_PROVIDER_HOST, config.PACS_PROVIDER_PORT))
+    result = sock.connect_ex(
+        (config.PACS_PROVIDER_HOST, config.PACS_PROVIDER_PORT)
+    )
     if result != 0:
-        print(f"Orthanc is not running on {config.PACS_PROVIDER_HOST}:{config.PACS_PROVIDER_PORT}")  # noqa: T001
+        print(
+            f"Orthanc is not running on {config.PACS_PROVIDER_HOST}:{config.PACS_PROVIDER_PORT}"
+        )  # noqa: T001
         exit(1)
     else:
-        print(f"Orthanc is running on {config.PACS_PROVIDER_HOST}:{config.PACS_PROVIDER_PORT}")  # noqa: T001
+        print(
+            f"Orthanc is running on {config.PACS_PROVIDER_HOST}:{config.PACS_PROVIDER_PORT}"
+        )  # noqa: T001
 
 
 if __name__ == "__main__":
