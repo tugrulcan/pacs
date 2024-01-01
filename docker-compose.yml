@@ -1,0 +1,30 @@
+version: '3'
+services:
+  pacs_provider:
+    image: floymedical/pacs_technical_challenge:latest
+    environment:
+      DEFAULT_USER: orthanc
+      PASS: orthanc
+    ports:
+      - "4242:4242"
+      - "6667:6667"
+      - "8042:8042"
+
+  automation:
+    build:
+      context: ./
+      dockerfile: src/automation_orthanc/Dockerfile #build docker image based on dockerfile in same directory
+    depends_on:
+      - pacs_provider
+    links:
+      - pacs_provider
+    ports:
+      - "8000:8000"
+    container_name: floy_automation
+    volumes:
+      - ./src:/floy/src
+      - ./sample_data:/floy/sample_data
+    environment:
+      - HEADLESS=true
+      - PACS_HOST=pacs_provider
+    command: bash -c "python ./src/automation_orthanc/fill_pacs.py"
