@@ -1,0 +1,88 @@
+# See https://pre-commit.com for more information
+default_stages: [commit, push]
+default_language_version:
+  python: python3.10
+repos:
+  - repo: meta
+    hooks:
+      - id: check-useless-excludes
+
+  - repo: https://gitlab.com/smop/pre-commit-hooks
+    rev: v1.0.0
+    hooks:
+      - id: check-poetry
+
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: "v1.10.0"
+    hooks:
+      - id: python-no-log-warn
+      - id: python-no-eval
+      - id: python-use-type-annotations
+      - id: rst-backticks
+      - id: rst-directive-colons
+      - id: rst-inline-touching-normal
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-ast
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: check-json
+      - id: check-yaml
+      - id: check-toml
+      - id: debug-statements
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+      - id: check-case-conflict
+      - id: check-symlinks
+
+  - repo: local
+    hooks:
+      - id: autoflake
+        name: autoflake
+        entry: poetry run autoflake -r -i --remove-all-unused-imports --remove-unused-variables
+        language: system
+        types: [ python ]
+      - id: isort
+        name: isort
+        entry: poetry run isort
+        language: system
+        types: [ python ]
+      - id: black
+        name: black
+        entry: poetry run black
+        language: system
+        types: [ python ]
+      - id: pyupgrade
+        name: pyupgrade
+        entry: poetry run pyupgrade --py37-plus
+        language: system
+        types: [ python ]
+      - id: mypy
+        name: mypy
+        entry: poetry run mypy --package src.floy -p tests
+        require_serial: true
+        language: system
+        types: [ python ]
+        pass_filenames: false
+      - id: flake8
+        name: flake8
+        entry: poetry run flake8
+        language: system
+        types: [ python ]
+      - id: pytest
+        name: pytest
+        entry: poetry run pytest
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [push]
