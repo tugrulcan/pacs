@@ -13,18 +13,17 @@ services:
   automation:
     build:
       context: ./
-      dockerfile: src/automation_orthanc/Dockerfile #build docker image based on dockerfile in same directory
+      dockerfile: src/automation_orthanc/Dockerfile
     depends_on:
       - pacs_provider
     links:
       - pacs_provider
-    ports:
-      - "8000:8000"
     container_name: floy_automation
     volumes:
       - ./src:/floy/src
       - ./sample_data:/floy/sample_data
     environment:
       - HEADLESS=true
-      - PACS_HOST=pacs_provider
-    command: bash -c "python ./src/automation_orthanc/fill_pacs.py"
+      - PACS_PROVIDER_HOST=pacs_provider
+      - PACS_PROVIDER_PORT=8042
+    command: bash -c "python3 -m src.automation_orthanc.fill_pacs"

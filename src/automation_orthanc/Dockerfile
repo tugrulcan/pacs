@@ -10,13 +10,9 @@ RUN apt-get update && apt-get install -y  \
 
 
 WORKDIR /floy
-COPY ./src src
-COPY ./sample_data sample_data
+COPY ./ /
 
-COPY poetry.lock pyproject.toml ./
 RUN ls -la
 RUN pip install poetry
 RUN poetry config virtualenvs.create false
 RUN poetry install
-
-CMD ["python", "./src/automation_orthanc/fill_pacs.py"]

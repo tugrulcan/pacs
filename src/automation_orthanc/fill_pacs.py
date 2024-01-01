@@ -1,24 +1,27 @@
 import random
-from os import environ
 from pathlib import Path
 
 from playwright.sync_api import Playwright, sync_playwright
 
+from src.settings import config
 
-def run(playwright: Playwright) -> None:
-    browser = playwright.chromium.launch(
-        headless=environ.get("HEADLESS", "true") == "true"
+
+def run(pw: Playwright) -> None:
+    browser = pw.chromium.launch(
+        headless=config.HEADLESS,
     )
     context = browser.new_context(
-        http_credentials={"username": "orthanc", "password": "orthanc"},
-        record_video_dir="./videos/",
+        http_credentials={
+            "username": config.ORTHANC_USERNAME,
+            "password": config.ORTHANC_PASSWORD
+        },
     )
 
     context.tracing.start(screenshots=True, snapshots=True, sources=True)
 
     try:
         page = context.new_page()
-        page.goto("http://pacs_provider:8042/app/explorer.html")
+        page.goto(f"http://{config.PACS_PROVIDER_HOST}:{config.PACS_PROVIDER_PORT}/app/explorer.html")
 
         page.get_by_role("link", name="Upload").click()
         project_root_folder_path = Path(__file__).parent.parent.parent
@@ -38,38 +41,58 @@ def run(playwright: Playwright) -> None:
 
         # Wait for the upload to finish
         page.wait_for_selector("text=Done")
+        print("Upload finished")
+
         page.get_by_role("link", name="Lookup").click()
         page.get_by_role("link", name="All studies").click()
+        print("All studies")
 
         # Collect all list item elements
+        page.wait_for_selector("#all-studies li")
         studies_list = page.query_selector_all("#all-studies li")
+        print("Studies collected ", len(studies_list))
         picked_study = random.choice(studies_list)
-        picked_study.click()
+        print("Selected study: ", picked_study.text_content())
+        picked_study.click(force=True)
+        print("Study selected")
 
         # Collect all options for series
-        series_list = page.query_selector_all("#list-series li")
+        page.wait_for_selector("#list-series li div")
+        series_list = page.query_selector_all("#list-series li div")
+        print("Series collected ", len(series_list))
         picked_series = random.choice(series_list)
-        picked_series.click()
+        print("Selected series: ", picked_series.text_content())
+        picked_series.click(force=True)
+        print("Series selected")
+
         page.wait_for_selector("text='Delete this series'")
 
         page.get_by_role("link", name="Send to DICOM modality").click()
         page.get_by_role("link", name="Tech_Challenge").click()
+        print("Sent to DICOM modality")
     finally:
         context.tracing.stop(path="./trace.zip")
         browser.close()
 
 
-if __name__ == "__main__":
-    # Check if PACS_HOST:8042 is reachable
-    import socket
+def check_connectivity():
+    print("Checking connectivity, ", {config.PACS_PROVIDER_HOST, config.PACS_PROVIDER_PORT})
 
+    # Check if pacs provider is running
+    import socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    result = sock.connect_ex(("pacs_provider", 8042))
+    result = sock.connect_ex((config.PACS_PROVIDER_HOST, config.PACS_PROVIDER_PORT))
     if result != 0:
-        print("Orthanc is not running on pacs_provider:8042")  # noqa: T001
+        print(f"Orthanc is not running on {config.PACS_PROVIDER_HOST}:{config.PACS_PROVIDER_PORT}")  # noqa: T001
         exit(1)
     else:
-        print("Orthanc is running on pacs_provider:8042")  # noqa: T001
+        print(f"Orthanc is running on {config.PACS_PROVIDER_HOST}:{config.PACS_PROVIDER_PORT}")  # noqa: T001
+
+
+if __name__ == "__main__":
+    check_connectivity()
 
     with sync_playwright() as playwright:
         run(playwright)
+
+    print("Successfully finished")
