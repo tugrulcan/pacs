@@ -19,5 +19,8 @@ class Settings(BaseSettings):
     )
     PACS_PROVIDER_PORT: int = Field(default=8042, env="PACS_PROVIDER_PORT")
 
+    API_HOST: str = Field(default="127.0.0.1", env="API_HOST")
+    API_PORT: int = Field(default=8000, env="API_PORT")
+
 
 config = Settings()

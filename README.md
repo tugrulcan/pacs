@@ -1,3 +1,23 @@
+## Project Structure
+
+This README section outlines the structure of the project, detailing each key directory and its contents.
+
+### `automation_pac_client`
+
+- **Purpose**: This directory is dedicated to browser automation codes used for uploading files into Orthanc PACS. The primary goal is to populate the PACS with data for development and manual testing purposes.
+- **Contents**: It contains automation scripts developed using Playwright. These scripts streamline the operations outlined in the "Filling the PACS with data and using it" section, thereby automating them for efficiency and consistency.
+
+### `floy`
+
+- **Purpose**: The `floy` directory is the core of the API implementation. It serves as the project's backbone, housing essential components for the application's functionality.
+- **Contents**: This directory encompasses the API implementation details, including Database (DB) models, services, and routers. The structure is designed to be scalable and flexible, providing a robust base for project expansion and further development.
+
+### `pac_client`
+
+- **Purpose**: This directory originated from the technical challenge code provided in the initial phase of the project. It forms a crucial part of the application's foundational code.
+- **Contents**: In this section, the original classes have been renamed and reorganized into separate files. Although the changes are minor, they are significant for improving code readability and maintainability. The restructuring facilitates easier navigation and understanding of the codebase.
+
+---
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
@@ -115,7 +135,7 @@ poetry run python -m src.workers.transactions_consumer
     [API documentation](http://0.0.0.0:8001/docs)
 
     It should look like below:
-    ![image](https://github.com/tugrulcan/staket/assets/12617804/60e45292-d1a6-417f-9277-da16cebb9a7e)
+    ![image](https://github.com/tugrulcan/havhav/assets/12617804/5d70d255-9884-47f2-83fe-2bd69fd35ec9)
 
 
 ## API Documentation
