@@ -1,3 +1,8 @@
+# Floy Tech Challenge
+
+System mock for managing medical transactions.
+
+---
 ## Project Structure
 
 This README section outlines the structure of the project, detailing each key directory and its contents.
@@ -107,36 +112,24 @@ Pre-commit hooks run all the auto-formatters (e.g. black, isort), linters (e.g. 
 
 - Docker and Docker-compose
 
-#### 1. Start the DB and RabbitMQ containers
+#### 1. Start the DB, API, Orthanc PACS image, and Automation for PACS client
 ```sh
 docker-compose down -v && docker-compose up
 ```
 
-#### 2. Run Alembic migrations
-```sh
-poetry run alembic upgrade head
-```
-
-#### 3. Start the API server
-```sh
-poetry run uvicorn main:app --reload --port 8001
-```
-
-#### 4. Start the worker
-```sh
-poetry run python -m src.workers.transactions_consumer
-```
-
-#### 5. Visit the API documentation
-
+#### 2. Visit the API documentation
 
 - When the containers are running double check if the app is being served on your local by visiting this URL:
 
-    [API documentation](http://0.0.0.0:8001/docs)
+    [API documentation](http://0.0.0.0:8000/docs)
 
     It should look like below:
     ![image](https://github.com/tugrulcan/havhav/assets/12617804/5d70d255-9884-47f2-83fe-2bd69fd35ec9)
 
+#### 3. Start the client worker
+```sh
+poetry run python -m src.pac_client.client
+```
 
 ## API Documentation
 The API documentation is automatically generated from the request and response payload models.
@@ -144,6 +137,38 @@ In order to view the documentation, after start running the API locally, and  pl
 ---
 
 ## Testing
+
+Currently, the project does not include unit tests. This is due to the limited time I had for the overall solution. However, testing is a critical aspect of this project, and the following areas are identified for future unit testing:
+
+### Proposed Unit Tests
+
+- **Models and Validations**:
+  - Purpose: To ensure that the models adhere to their defined constraints.
+  - Focus: Validate the integrity and constraints of various data models within the application.
+
+- **Database Handler**:
+  - Purpose: To verify the correct persistence of data in the database.
+  - Focus: Test data storage and retrieval processes to ensure that the database handler is functioning correctly.
+
+- **Services**:
+  - Purpose: To confirm that existing data is being updated correctly, rather than creating redundant inserts.
+  - Focus: Check the logic within services to ensure they are accurately processing and updating data.
+
+- **API Routers**:
+  - Purpose: To validate the proper integration and interaction between the API routers and services.
+  - Focus: Ensure that API routers are correctly calling and utilizing the services as intended.
+
+### Additional Testing Considerations
+
+- **`pac_client` Module**:
+  - Observation: More comprehensive testing is desired for the `pac_client` module. However, this will require additional refactoring to make the code more testable.
+  - Areas for Refactoring:
+    - Race conditions while using the Queue.
+    - Extracting methods for better modularity and testability.
+    - Handling events and scenarios involving incorrect message structures.
+  - Goal: Enhance the testability of the `pac_client` module to allow for more thorough testing.
+
+To run the existing tests, use the following command:
 
 ```sh
 poetry run pytest
@@ -161,7 +186,6 @@ poetry run pytest
 | [uvicorn](https://www.uvicorn.org/)                     | Uvicorn is an ASGI web server implementation for Python. We use Uvicorn to serve our API. |
 | [sqlmodel](https://sqlmodel.tiangolo.com/)              | SQLModel is based on Python type annotations, and powered by Pydantic and SQLAlchemy. |
 | [pydantic-settings](https://pydantic-docs.helpmanual.io/) | Data validation and settings management using python type annotations. Pydantic enforces type hints at runtime and provides user-friendly errors when data is invalid. |
-| [pika](https://pika.readthedocs.io/en/stable/)          | Pika is a pure-Python implementation of the AMQP 0-9-1 protocol used for communicating with RabbitMQ. |
 | [psycopg2](https://www.psycopg.org/docs/)               | Psycopg is the most popular PostgreSQL database adapter for the Python programming language. |
 | [alembic](https://alembic.sqlalchemy.org/en/latest/)    | Alembic is a lightweight database migration tool for usage with the SQLAlchemy Database Toolkit for Python. |
 
